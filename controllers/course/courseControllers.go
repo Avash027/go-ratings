@@ -13,21 +13,31 @@ type CourseController struct {
 	web.Controller
 }
 
+type Response struct {
+	Success bool `json:"success"`
+	Message string `json:"message"`
+	Courses []*models.CourseData `json:"courses"`
+}
+
 
 func (c *CourseController) GetCourses(){
 
 
 	courses, err := models.GetCourses()
 
+
 	if err != nil {
 		logs.Critical(err.Error())
-		c.Ctx.ResponseWriter.Status = 500
-		c.Ctx.ResponseWriter.Write([]byte("Internal Server Error"))
+		c.Ctx.Output.Status = 500
+		c.Data["json"] = Response{false, "Internal Server Errror" , nil}
+		c.ServeJSON()
 		return
 	}
 
-	c.Data["json"] = courses
+	c.Ctx.Output.Status = 200
+	c.Data["json"] = Response{true, "All courses" , courses}
 	c.ServeJSON()
+
 
 }
 
@@ -40,32 +50,36 @@ func (c *CourseController) AddCourse() {
 
 	if err != nil {
 		logs.Critical(err.Error())
-		c.Ctx.ResponseWriter.Status = 400
-		c.Ctx.ResponseWriter.Write([]byte("Bad Request"))
+		c.Ctx.Output.Status = 400
+		c.Data["json"] = Response{false, "Cannot unmarshal json" , nil}
+		c.ServeJSON()
 		return
 	}
 
-	if courseModel.CourseName == "" || courseModel.CourseDesc == "" {
-		c.Ctx.ResponseWriter.Status = 400
-		c.Ctx.ResponseWriter.Write([]byte("Bad Request"))
+	if courseModel.CourseName == "" {
+		c.Ctx.Output.Status = 400
+		c.Data["json"] = Response{false, "Invalid course name" , nil}
+		c.ServeJSON()
 		return
 	}
 
 	courseModel.CourseRating = 0
 
-	courseModel.TotalReviews = 0
+	courseModel.TotalRatingNum = 0
 
 	_, err = models.AddCourse(&courseModel)
 
 	if err != nil {
-		c.Ctx.ResponseWriter.Status = 500
-		c.Ctx.ResponseWriter.Write([]byte("Internal Server Error"))
+		c.Ctx.Output.Status = 500
+		c.Data["json"] = Response{false, "Internal Server Errror" , nil}
+		c.ServeJSON()
 		return
 	}
 
-	c.Ctx.ResponseWriter.Status = 201
-	c.Ctx.ResponseWriter.Write([]byte("Created"))
-	return
+		c.Ctx.Output.Status = 200
+		c.Data["json"] = Response{true, "Course created Successfully" , nil}
+		c.ServeJSON()
+
 }
 
 

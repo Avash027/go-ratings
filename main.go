@@ -5,7 +5,9 @@ import (
 	"strings"
 
 	"github.com/Avash027/ratings/controllers/course"
+	"github.com/Avash027/ratings/controllers/ratings"
 	"github.com/Avash027/ratings/controllers/test"
+	user "github.com/Avash027/ratings/controllers/user"
 	_ "github.com/Avash027/ratings/models"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
@@ -43,5 +45,9 @@ func main() {
 	web.Router("/", &test.TestController{})
 	web.Router("/api/course" ,&course.CourseController{} , "post:AddCourse" )
 	web.Router("/api/course",&course.CourseController{} , "get:GetCourses")
+
+	web.Router("/api/user",&user.UserController{}, "post:AddUser")
+
+	web.Router("/api/rating",&ratings.RatingsControllers{} , "post:AddRating")
 	web.Run(":"+os.Getenv("PORT"))
 }
