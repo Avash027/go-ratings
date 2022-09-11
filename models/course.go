@@ -16,6 +16,23 @@ func AddCourse(c *CourseData) (int64, error) {
 	return o.Insert(c)
 }
 
+//Check if course exsist
+func CheckIfCourseExsist (cid int32) (bool) {
+	o := orm.NewOrm()
+	
+	cnt,err := o.QueryTable("course_data").Filter("id",cid).Count()
+	if err != nil {
+		return false
+	}
+	
+	if(cnt > 0){
+		return true
+	} else{
+		return false
+	}
+
+}
+
 func GetCourses() ([]*CourseData, error){
 	var courses []*CourseData
 	_, err :=orm.NewOrm().QueryTable("course_data").All(&courses)

@@ -46,6 +46,14 @@ func (c *RatingsControllers) AddRating() {
 		return
 	}
 
+	// Check if course exists
+	if !models.CheckIfCourseExsist(UserRating.CourseId) {
+		c.Ctx.Output.Status = 400
+		c.Data["json"] = Response{false, "Course does not exist"}
+		c.ServeJSON()
+		return
+	}
+
 	_,err = models.UpdateRating(&UserRating)
 
 	if err != nil {
