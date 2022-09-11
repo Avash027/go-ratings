@@ -96,9 +96,61 @@ func UpdateRating(newUserRating *UserRatings) (int64, error) {
 		return 1,nil
 		
 	}
+}
+
+func DeleteRating(uid int32, cid int32) (int64, error) {
+	o := orm.NewOrm()
+
+	var userRating UserRatings
+	userRating.UserId = uid
+	userRating.CourseId = cid
+
+	var courseData CourseData
+	courseData.Id = cid
+	err := o.Read(&courseData)
+
+	if err != nil {
+		return 0, err
+	}
+
+	err = o.Read(&userRating, "UserId", "CourseId")
+
+	if err != nil {
+		return 0, err
+	}
+
+	courseData.CourseRating -= userRating.Rating //Total course rating
+	courseData.TotalRatingNum--
+	if(courseData.TotalRatingNum == 0){
+		courseData.AverageRating = 0
+	} else {
+	courseData.AverageRating = float64(courseData.CourseRating) / float64(courseData.TotalRatingNum)
+	}
 	
+	err = o.Begin()
 
+	if err != nil {
+		logs.Critical("Failed to start transaction")
+		return 0, err
+	}
 
+	_, err = o.Update(&courseData)
+
+	if err != nil {
+		o.Rollback()
+		return 0, err
+	}
+
+	_, err = o.Raw("DELETE FROM user_ratings WHERE user_id = ? AND course_id = ?", uid, cid).Exec()
+
+	if err != nil {
+		o.Rollback()
+		return 0, err
+	}
+
+	o.Commit()
+
+	return 1, nil
 }
 
 func init() {

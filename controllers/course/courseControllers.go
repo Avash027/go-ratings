@@ -19,13 +19,14 @@ type Response struct {
 	Courses []*models.CourseData `json:"courses"`
 }
 
-
+// @Title Get All Courses
+// @Description Get All Courses
+// @Success 200 {object} Response{success:true, message:"All courses", courses:[]}
+// @Failure 400 {object} Response{success:false, message:"Unable to process json"}
+// @Failure 500 {object} Response{success:false, message:"Internal Server Errror"}
+// @router / [get]
 func (c *CourseController) GetCourses(){
-
-
 	courses, err := models.GetCourses()
-
-
 	if err != nil {
 		logs.Critical(err.Error())
 		c.Ctx.Output.Status = 500
@@ -41,12 +42,17 @@ func (c *CourseController) GetCourses(){
 
 }
 
+// @Title Add Course
+// @Description Add Course
+// @Success 200 {object} Response{success:true, message:"Course created Successfully"}
+// @Failure 400 {object} Response{success:false, message:"Unable to process json"}
+// @Failure 400 {object} Response{success:false, message:"Invalid course name"}
+// @Failure 500 {object} Response{success:false, message:"Internal Server Errror"}
+// @router / [post]
 func (c *CourseController) AddCourse() {
 	var courseModel models.CourseData
 	
 	err:= json.Unmarshal(c.Ctx.Input.RequestBody , &courseModel)
-
-
 
 	if err != nil {
 		logs.Critical(err.Error())

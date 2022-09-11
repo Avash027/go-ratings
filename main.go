@@ -9,9 +9,11 @@ import (
 	"github.com/Avash027/ratings/controllers/test"
 	user "github.com/Avash027/ratings/controllers/user"
 	_ "github.com/Avash027/ratings/models"
+	_ "github.com/Avash027/ratings/routers"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/beego/v2/server/web/filter/cors"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -40,6 +42,14 @@ func main() {
 		panic(err.Error())
 	}
 
+	web.InsertFilter("*", web.BeforeRouter, cors.Allow(&cors.Options{
+		AllowOrigins:     []string{"*"},
+		AllowCredentials: true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type", "Origin", "Authorization", "Access-Control-Allow-Origin", "X-User-ApiKey", "X-Token", "X-Re-Token", "X-Session-v2", "X-Hook-SHA256"},
+		ExposeHeaders:    []string{"Content-Length", "Access-Control-Allow-Origin", "Set-Cookie"},
+	}), web.WithReturnOnOutput(false))
+
 	
 
 	web.Router("/", &test.TestController{})
@@ -49,5 +59,6 @@ func main() {
 	web.Router("/api/user",&user.UserController{}, "post:AddUser")
 
 	web.Router("/api/rating",&ratings.RatingsControllers{} , "post:AddRating")
+	web.Router("/api/rating",&ratings.RatingsControllers{} , "delete:DeleteRating")
 	web.Run(":"+os.Getenv("PORT"))
 }

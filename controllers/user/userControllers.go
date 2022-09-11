@@ -18,6 +18,13 @@ type Response struct {
 
 }
 
+// @Title Add User
+// @Description Add User
+// @Success 200 {object} Response{success:true, message:"User created"}
+// @Failure 400 {object} Response{success:false, message:"Unable to process json"}
+// @Failure 500 {object} Response{success:false, message:"Internal Server Errror"}
+// @router / [post]
+
 func (c *UserController) AddUser(){
 	var User models.User
 
