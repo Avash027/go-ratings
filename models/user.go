@@ -13,6 +13,22 @@ func AddUser(user *User) (error) {
 	return err;
 }
 
+func CheckIfUserExsist (uid int32) (bool) {
+	o := orm.NewOrm()
+	
+	cnt,err := o.QueryTable("user").Filter("id",uid).Count()
+	if err != nil {
+		return false
+	}
+	
+	if(cnt > 0){
+		return true
+	} else{
+		return false
+	}
+
+}
+
 func init() {
 	orm.RegisterModel(new(User))
 }
