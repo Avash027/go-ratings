@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 
 	"github.com/Avash027/ratings/models"
-	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 )
 
@@ -24,7 +23,6 @@ func (c *RatingsControllers) AddRating() {
 
 	err := json.Unmarshal(c.Ctx.Input.RequestBody, &UserRating)
 
-	logs.Info(err)
 
 	if err != nil {
 		c.Ctx.ResponseWriter.Status = 400
@@ -36,6 +34,14 @@ func (c *RatingsControllers) AddRating() {
 	if UserRating.Rating <=0 || UserRating.Rating > 5 {
 		c.Ctx.Output.Status = 400
 		c.Data["json"] = Response{false, "Invalid UserRatings"}
+		c.ServeJSON()
+		return
+	}
+
+	// Check if user exists
+	if !models.CheckIfUserExsist(UserRating.UserId) {
+		c.Ctx.Output.Status = 400
+		c.Data["json"] = Response{false, "User does not exist"}
 		c.ServeJSON()
 		return
 	}
